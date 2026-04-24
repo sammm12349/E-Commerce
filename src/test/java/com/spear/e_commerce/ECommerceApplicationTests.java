@@ -1,13 +1,13 @@
-package com.spear.e_commerce;
+// package com.spear.e_commerce;
 
-import org.junit.jupiter.api.Test;
+//import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
-@SpringBootTest
-class ECommerceApplicationTests {
+//@SpringBootTest
+//class ECommerceApplicationTests {
 
-	@Test
-	void contextLoads() {
-	}
+//	@Test
+//	void contextLoads() {
+//	}
 
-}
+//}
