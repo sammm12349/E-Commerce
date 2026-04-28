@@ -1,6 +1,7 @@
 package com.spear.e_commerce.Controller;
 
 import com.spear.e_commerce.Response.ApiResponse;
+import com.spear.e_commerce.dto.ProductDto;
 import com.spear.e_commerce.exceptions.ResourceNotFoundException;
 import com.spear.e_commerce.model.Product;
 import com.spear.e_commerce.request.AddProductRequest;
@@ -15,23 +16,28 @@ import java.util.List;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
-@AllArgsConstructor
+
 @RestController
 @RequestMapping("${api.prefix}/products")
 
 public class ProductController {
     private final IProductService productService;
 
-    @GetMapping("/all")
-    public ResponseEntity<ApiResponse> getAllProducts() {
-        List<Product> products = productService.getAllProducts();
-        return ResponseEntity.ok(new ApiResponse("success", products));
+    public ProductController(IProductService productService) {
+        this.productService = productService;
     }
+
+
+      @GetMapping("/all")
+      public ResponseEntity<ApiResponse> getAllProducts() {
+        List<ProductDto> products = productService.getAllProducts();
+      return ResponseEntity.ok(new ApiResponse("success", products));
+   }
 
     @GetMapping("product/{productId}/product")
     public ResponseEntity<ApiResponse> getProductById(@PathVariable Long productId) {
         try {
-            Product product = productService.getProductById(productId);
+            ProductDto product = productService.getProductById(productId);
             return ResponseEntity.ok(new ApiResponse("success", product));
         } catch (ResourceNotFoundException e) {
             return ResponseEntity.status(NOT_FOUND).body(new ApiResponse(e.getMessage(), null));
@@ -41,7 +47,7 @@ public class ProductController {
     @PostMapping("/add")
     public ResponseEntity<ApiResponse> addProduct(@RequestBody AddProductRequest product) {
         try {
-            Product product1 = productService.addProduct(product);
+            ProductDto product1 = productService.addProduct(product);
             return ResponseEntity.ok(new ApiResponse("add product success", product1));
         } catch (ResourceNotFoundException e) {
             return ResponseEntity.status(INTERNAL_SERVER_ERROR).body(new ApiResponse(e.getMessage(), null));
@@ -52,7 +58,7 @@ public class ProductController {
     @PutMapping("/product/{productId}/update")
     public ResponseEntity<ApiResponse> updateProduct(@PathVariable Long productId, @RequestBody ProductUpdateRequest request) {
         try {
-            Product product1 = productService.updateProduct(request, productId);
+            ProductDto product1 = productService.updateProduct(request, productId);
             return ResponseEntity.ok(new ApiResponse("update product success", product1));
         } catch (ResourceNotFoundException e) {
             return ResponseEntity.status(NOT_FOUND).body(new ApiResponse(e.getMessage(), null));
@@ -76,7 +82,7 @@ public class ProductController {
     public ResponseEntity<ApiResponse> getProductByBrandAndName(@RequestParam String brandName, @RequestParam String productName) {
 
         try {
-            List<Product> product = productService.getProductsByBrandAndName(brandName, productName);
+            List<ProductDto> product = productService.getProductsByBrandAndName(brandName, productName);
             if (product.isEmpty()) {
                 return ResponseEntity.status(NOT_FOUND).body(new ApiResponse("No product found", null));
             }
@@ -90,7 +96,7 @@ public class ProductController {
     public ResponseEntity<ApiResponse> getProductByCategoryAndBrand(@PathVariable String category, @PathVariable String brand) {
 
         try {
-            List<Product> product = productService.getProductsByCategoryAndBrand(category, brand);
+            List<ProductDto> product = productService.getProductsByCategoryAndBrand(category, brand);
             if (product.isEmpty()) {
                 return ResponseEntity.status(NOT_FOUND).body(new ApiResponse("No product found", null));
             }
@@ -104,7 +110,7 @@ public class ProductController {
     public ResponseEntity<ApiResponse> getProductByName(@PathVariable String name) {
 
         try {
-            List<Product> product = productService.getProductsByName(name);
+            List<ProductDto> product = productService.getProductsByName(name);
             if (product.isEmpty()) {
                 return ResponseEntity.status(NOT_FOUND).body(new ApiResponse("No product found", null));
             }
@@ -119,7 +125,7 @@ public class ProductController {
     public ResponseEntity<ApiResponse> getProductByBrand(@PathVariable String brand) {
 
         try {
-            List<Product> product = productService.getProductsByBrand(brand);
+            List<ProductDto> product = productService.getProductsByBrand(brand);
             if (product.isEmpty()) {
                 return ResponseEntity.status(NOT_FOUND).body(new ApiResponse("No product found", null));
             }
@@ -133,7 +139,7 @@ public class ProductController {
     @GetMapping("/product/{category}/all/products")
     public ResponseEntity<ApiResponse> findProductByCategory(@PathVariable String category) {
         try {
-            List<Product> products = productService.getProductsByCategory(category);
+            List<ProductDto> products = productService.getProductsByCategory(category);
             if (products.isEmpty()) {
                 return ResponseEntity.status(NOT_FOUND).body(new ApiResponse("No product found", null));
             }

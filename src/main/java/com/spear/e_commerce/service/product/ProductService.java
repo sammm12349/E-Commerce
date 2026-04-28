@@ -1,5 +1,7 @@
 package com.spear.e_commerce.service.product;
 
+import com.spear.e_commerce.Mapper.ProductMapper;
+import com.spear.e_commerce.dto.ProductDto;
 import com.spear.e_commerce.exceptions.ResourceNotFoundException;
 import com.spear.e_commerce.model.Category;
 import com.spear.e_commerce.model.Product;
@@ -7,6 +9,7 @@ import com.spear.e_commerce.repository.categoryRepository.CategoryRepository;
 import com.spear.e_commerce.repository.productRepository.ProductRepository;
 import com.spear.e_commerce.request.AddProductRequest;
 import com.spear.e_commerce.request.ProductUpdateRequest;
+
 
 import org.springframework.stereotype.Service;
 
@@ -18,25 +21,29 @@ public class ProductService implements IProductService {
 
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
+    private final ProductMapper productMapper;
 
-    public ProductService(ProductRepository productRepository, CategoryRepository categoryRepository) {
+    public ProductService(ProductRepository productRepository, CategoryRepository categoryRepository, ProductMapper productMapper) {
         this.productRepository = productRepository;
         this.categoryRepository = categoryRepository;
+        this.productMapper = productMapper;
     }
 
 
     @Override
-    public Product getProductById(Long id) {
-        return productRepository.findById(id).orElseThrow
+    public ProductDto getProductById(Long id) {
+        Product product = productRepository.findById(id).orElseThrow
                 (() -> new ResourceNotFoundException("Product Not Found"));
+        return productMapper.toDTO(product);
+
     }
 
     @Override
-    public Product addProduct(AddProductRequest request) {
+    public ProductDto addProduct(AddProductRequest request) {
         Category category = categoryRepository.findById(request.getCategoryId()).orElseThrow(
                 () -> new ResourceNotFoundException("Category not found with id" + request.getCategoryId()));
 
-        return productRepository.save(createProduct(request, category));
+        return productMapper.toDTO(productRepository.save(createProduct(request, category)));
 
 
 
@@ -54,11 +61,12 @@ public class ProductService implements IProductService {
     }
 
     @Override
-    public Product updateProduct(ProductUpdateRequest request, Long productId) {
+    public ProductDto updateProduct(ProductUpdateRequest request, Long productId) {
 
         return productRepository.findById(productId)
                 .map(exsitingProduct -> updateExistingProduct(exsitingProduct, request))
                 .map(productRepository:: save)
+                .map(productMapper::toDTO)
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found!"));
 
 
@@ -86,33 +94,51 @@ public class ProductService implements IProductService {
     }
 
     @Override
-    public List<Product> getAllProducts() {
-        return productRepository.findAll();
+    public List<ProductDto> getAllProducts() {
+        return productRepository.findAll()
+                .stream()
+                .map(productMapper::toDTO)
+                .toList();
     }
 
     @Override
-    public List<Product> getProductsByCategory(String category) {
-        return productRepository.findByCategory(category);
+    public List<ProductDto> getProductsByCategory(String category) {
+        return productRepository.findByCategory(category)
+                .stream()
+            .map(productMapper::toDTO)
+                .toList();
     }
 
     @Override
-    public List<Product> getProductsByBrand(String brand) {
-        return productRepository.findByBrand(brand);
+    public List<ProductDto> getProductsByBrand(String brand) {
+        return productRepository.findByBrand(brand)
+                .stream()
+                .map(productMapper::toDTO)
+                .toList();
     }
 
     @Override
-    public List<Product> getProductsByCategoryAndBrand(String category, String brand) {
-        return productRepository.findByCategoryAndBrand(category,brand);
+    public List<ProductDto> getProductsByCategoryAndBrand(String category, String brand) {
+        return productRepository.findByCategoryAndBrand(category,brand)
+                .stream()
+                .map(productMapper::toDTO)
+                .toList();
     }
 
     @Override
-    public List<Product> getProductsByName(String name) {
-        return productRepository.findByName(name);
+    public List<ProductDto> getProductsByName(String name) {
+        return productRepository.findByName(name)
+                .stream()
+                .map(productMapper::toDTO)
+                .toList();
     }
 
     @Override
-    public List<Product> getProductsByBrandAndName(String name, String brand) {
-        return productRepository.findByBrandAndName(brand,name);
+    public List<ProductDto> getProductsByBrandAndName(String name, String brand) {
+        return productRepository.findByBrandAndName(brand,name)
+                .stream()
+                .map(productMapper::toDTO)
+                .toList();
     }
 
     @Override

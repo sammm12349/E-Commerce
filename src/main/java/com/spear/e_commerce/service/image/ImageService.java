@@ -5,7 +5,7 @@ import com.spear.e_commerce.exceptions.ResourceNotFoundException;
 import com.spear.e_commerce.model.Image;
 import com.spear.e_commerce.model.Product;
 import com.spear.e_commerce.repository.ImageRepository.ImageRepository;
-import com.spear.e_commerce.service.product.IProductService;
+import com.spear.e_commerce.repository.productRepository.ProductRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -18,11 +18,11 @@ import java.util.List;
 @Service
 public class ImageService implements IImageService {
     private final ImageRepository imageRepository;
-    private final IProductService productService;
+    private final ProductRepository productRepository;
 
-    public ImageService(ImageRepository imageRepository, IProductService productService) {
+    public ImageService(ImageRepository imageRepository, ProductRepository productRepository) {
         this.imageRepository = imageRepository;
-        this.productService = productService;
+        this.productRepository = productRepository;
     }
 
 
@@ -43,14 +43,15 @@ public class ImageService implements IImageService {
     @Override
     public List<ImageDto> saveImage(List<MultipartFile> files, Long productId) {
 
-        Product product = productService.getProductById(productId);
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
         List<ImageDto> imageDtos = new ArrayList<>();
         for (MultipartFile file : files) {
             try {
                 Image image = new Image();
                 image.setFileName(file.getOriginalFilename());
                 image.setFileType(file.getContentType());
-                image.setImage(new SerialBlob(file.getBytes()));
+                image.setImageData(new SerialBlob(file.getBytes()));
                 image.setProduct(product);
 
 
@@ -86,7 +87,7 @@ public class ImageService implements IImageService {
         try {
             image.setFileName(file.getOriginalFilename());
             image.setFileName(file.getOriginalFilename());
-            image.setImage(new SerialBlob(file.getBytes()));
+            image.setImageData(new SerialBlob(file.getBytes()));
             imageRepository.save(image);
         }
         catch (IOException | SQLException e) {

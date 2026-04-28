@@ -6,7 +6,7 @@ import com.spear.e_commerce.exceptions.ResourceNotFoundException;
 import com.spear.e_commerce.model.Image;
 import com.spear.e_commerce.service.image.IImageService;
 import com.spear.e_commerce.service.image.ImageService;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -23,12 +23,17 @@ import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.ResponseEntity.ok;
 
-@AllArgsConstructor
+
 @RestController
 @RequestMapping("${api.prefix}/images")
 public class ImageController {
 
     private final IImageService imageService;
+
+    public ImageController(IImageService imageService) {
+        this.imageService = imageService;
+    }
+
 
     @PostMapping("/upload")
     public ResponseEntity<ApiResponse> saveImage(@RequestParam List<MultipartFile> files, @RequestParam Long productId) {
@@ -44,10 +49,10 @@ public class ImageController {
 
     @GetMapping("/image/download/{imageId}")
     public ResponseEntity<Resource> downloadImage(@PathVariable Long imageId) throws SQLException {
-        Image image = imageService.getImageById(imageId);
-        ByteArrayResource resource = new ByteArrayResource(image.getImage().getBytes(1,(int) image.getImage().length()));
-        return ok().contentType(MediaType.parseMediaType(image.getFileType()))
-                .header(HttpHeaders.CONTENT_DISPOSITION,"attachment; filename=\"" + image.getFileName() + "\"")
+        Image image1 = imageService.getImageById(imageId);
+        ByteArrayResource resource = new ByteArrayResource(image1.getImageData().getBytes(1,(int) image1.getImageData().length()));
+        return ok().contentType(MediaType.parseMediaType(image1.getFileType()))
+                .header(HttpHeaders.CONTENT_DISPOSITION,"attachment; filename=\"" + image1.getFileName() + "\"")
                 .body(resource);
     }
 
