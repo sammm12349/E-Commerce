@@ -8,7 +8,6 @@ import lombok.NoArgsConstructor;
 import java.sql.Blob;
 
 @Entity
-@NoArgsConstructor
 @Table(name = "image")
 
 public class Image {
@@ -73,7 +72,9 @@ public class Image {
         this.product = product;
     }
 
-    public Image() {}
+    public Image() {
+
+    }
 
     public Image(long id, String fileName, String fileType, Blob imageData, String downloadUrl, Product product) {
         this.id = id;
@@ -83,4 +84,5 @@ public class Image {
         this.downloadUrl = downloadUrl;
         this.product = product;
     }
+
 }
